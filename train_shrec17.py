@@ -13,27 +13,8 @@ from tools.Trainer import Trainer
 from tools.ImgDataset import ShapeNetCore55_MultiView, ShapeNetCore55_SingleView
 from model.view_gcn import view_GCN, SVCNN
 
-from utils import init, get_logger
+from utils import init, get_logger, dist_setup, cuda_seed_setup, dist_cleanup
 from parser import args
-
-
-def dist_setup(rank):
-    # initialization for distributed training on multiple GPUs
-    os.environ['MASTER_ADDR'] = args.master_addr
-    os.environ['MASTER_PORT'] = args.master_port
-
-    dist.init_process_group(args.backend, rank=rank, world_size=args.world_size)
-    torch.cuda.set_device(rank)
-
-
-def cuda_seed_setup():
-    # If you are working with a multi-GPU model, `torch.cuda.manual_seed()` is insufficient 
-    # to get determinism. To seed all GPUs, use manual_seed_all().
-    torch.cuda.manual_seed_all(args.seed)
-
-
-def dist_cleanup():
-    dist.destroy_process_group()
 
 
 def entry(rank, num_devices):

@@ -3,7 +3,7 @@
 #   test_inst_acc: 
 #   test_class_acc: 
 
-PROJ_NAME=viewformer_naive
+PROJ_NAME=viewgcn_mn40
 EXP_NAME=MN40-V20-ViewGCN-RN18-1
 MAIN_PROGRAM=train_modelnet.py
 MODEL_NAME=view_gcn.py

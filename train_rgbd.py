@@ -10,7 +10,7 @@ from torch.utils.data import DistributedSampler
 from torch.nn.parallel import DistributedDataParallel as DDP
 
 from tools.Trainer import Trainer
-from tools.ImgDataset import ModelNet_MultiView, ModelNet_SingleView
+from tools.ImgDataset import RGBD_MultiView, RGBD_SingleView
 from model.view_gcn import view_GCN, SVCNN
 
 from utils import init, get_logger, dist_setup, cuda_seed_setup, dist_cleanup
@@ -33,14 +33,14 @@ def entry(rank, num_devices):
 
     if args.stage_one:
         # --- 1.1 prepare data
-        sv_train_set = ModelNet_SingleView(args.train_path, scale_aug=False, rot_aug=False, num_classes=args.num_obj_classes)
+        sv_train_set = RGBD_SingleView(args.train_path, trial_id=args.trial_id, test_mode=False, num_classes=args.num_obj_classes)
         sv_samples_per_gpu = args.base_model_batch_size // args.world_size
         sv_train_sampler = DistributedSampler(sv_train_set, num_replicas=args.world_size, rank=rank)
         sv_train_loader = DataLoader(sv_train_set, sampler=sv_train_sampler, batch_size=sv_samples_per_gpu, shuffle=False, 
                                     num_workers=args.num_workers, pin_memory=True,)
         logger.write(f'len(sv_train_loader): {len(sv_train_loader)}', rank=rank)
 
-        sv_test_set = ModelNet_SingleView(args.test_path, scale_aug=False, rot_aug=False, test_mode=True, num_classes=args.num_obj_classes)
+        sv_test_set = RGBD_SingleView(args.test_path, trial_id=args.trial_id, test_mode=True, num_classes=args.num_obj_classes)
         sv_test_samples_per_gpu = args.base_model_test_batch_size // args.world_size
         sv_test_sampler = DistributedSampler(sv_test_set, num_replicas=args.world_size, rank=rank)
         sv_test_loader = DataLoader(sv_test_set, sampler=sv_test_sampler, batch_size=sv_test_samples_per_gpu, shuffle=False, 
@@ -66,16 +66,14 @@ def entry(rank, num_devices):
 
     if args.stage_two:
         # --- 2.1 prepare data
-        mv_train_set = ModelNet_MultiView(args.train_path, scale_aug=False, rot_aug=False, num_views=args.num_views, 
-                                           total_num_views=args.total_num_views, test_mode=False, num_classes=args.num_obj_classes)
+        mv_train_set = RGBD_MultiView(args.train_path, trial_id=args.trial_id, num_views=args.num_views, test_mode=False, num_classes=args.num_obj_classes)
         mv_samples_per_gpu = args.batch_size // args.world_size
         mv_train_sampler = DistributedSampler(mv_train_set, num_replicas=args.world_size, rank=rank)
         mv_train_loader = DataLoader(mv_train_set, sampler=mv_train_sampler, batch_size=mv_samples_per_gpu, shuffle=False, 
                                     num_workers=args.num_workers, pin_memory=True,)
         logger.write(f'len(mv_train_loader): {len(mv_train_loader)}', rank=rank)
         
-        mv_test_set = ModelNet_MultiView(args.test_path, scale_aug=False, rot_aug=False, num_views=args.num_views, 
-                                          total_num_views=args.total_num_views, test_mode=True, num_classes=args.num_obj_classes)
+        mv_test_set = RGBD_MultiView(args.test_path, trial_id=args.trial_id, num_views=args.num_views, test_mode=True, num_classes=args.num_obj_classes)
         mv_test_samples_per_gpu = args.test_batch_size // args.world_size
         mv_test_sampler = DistributedSampler(mv_test_set, num_replicas=args.world_size, rank=rank)
         mv_test_loader = DataLoader(mv_test_set, sampler=mv_test_sampler, batch_size=mv_test_samples_per_gpu, shuffle=False, 
