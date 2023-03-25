@@ -122,7 +122,7 @@ If you do not have Docker installed on your computer before, referring to the [o
 
     |   Metrics    | Split | P@N | R@N | F1@N | mAP | NDCG | P@N | R@N | F1@N | mAP | NDCG |
     | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-    |   **Version**    | <td colspan=5 style="text-align:center">micro</td> <td colspan=5 style="text-align:center">macro</td> 
+    |   **Version** | | micro | micro | micro | micro | micro | macro | macro | macro | macro | macro |
     | **reported** | _unspecified_ | 81.8 | 80.9 | 80.6 | 78.4 | 85.2 | 62.9 | 65.2 | 61.1 | 60.2 | 66.5 |
     | **reproduced** | _val_ | 82.2 | 82.3 | 81.9 | 80.1 | 82.3 | 62.6 | 66.6 | 63.0 | 62.3 | 68.3 |
     | **reproduced** | _test_ | 78.7 | 77.8 | 77.6 | 75.1 | 82.6 | 56.8 | 61.2 | 56.6 | 56.3 | 63.3 |
