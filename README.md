@@ -1,15 +1,18 @@
-This repository is a PyTorch DistributedDataParallel (DDP) re-implementation of the CVPR 2020 paper 
-[View-GCN](https://openaccess.thecvf.com/content_CVPR_2020/html/Wei_View-GCN_View-Based_Graph_Convolutional_Network_for_3D_Shape_Analysis_CVPR_2020_paper.html). 
+## Introduction
+This repository is a PyTorch DistributedDataParallel (DDP) re-implementation of the CVPR 2020 paper [View-GCN](https://openaccess.thecvf.com/content_CVPR_2020/html/Wei_View-GCN_View-Based_Graph_Convolutional_Network_for_3D_Shape_Analysis_CVPR_2020_paper.html). 
 
-First, the re-implementation aims to accelerate the process of training and inference by the PyTorch DDP mechanism since
-the [original implementation](https://github.com/weixmath/view-GCN) by the author is only for single-GPU learning
+
+* First, the re-implementation aims to accelerate the process of training and inference by the PyTorch DDP mechanism since
+the [original implementation](https://github.com/weixmath/view-GCN) by the author is for single-GPU learning
 and the procedure is much slower, especially when reproducing the retrieval results on SHREC17 benchmark. 
 
-Second, the retrieval code was absent in the [original repository](https://github.com/weixmath/view-GCN) and 
+* Second, the retrieval code was absent in the [original repository](https://github.com/weixmath/view-GCN) and 
 the author only released the classification code on ModelNet40. Our re-implementation adds the `retrieval experiment` and corresponding instructions. 
 
-Third, we also add the `classification` code on the `RGBD` dataset, modify the model and arguments definition to adapt multi-dataset training, 
+* Third, we also add the `classification` code on the `RGBD` and `ModelNet10` datasets, add all used datasets download links, modify the model and arguments definition to adapt multi-dataset training, 
 rewrite the READEME and optimzie code style, etc.
+
+    ![](images/viewgcn_architecture.png)
 
 In summary, this repository has the following new features compared to the original one
 
@@ -113,3 +116,9 @@ If you do not have Docker installed on your computer before, referring to the [o
     ```
 
 5. Replace `val.csv` with `test.csv` and re-run steps 3-6 to get the results of the test split
+
+### Acknowledgement
+    Our re-implementation is inspired by the following projects, thanks to their hard work
+1. [ViPFormer](https://github.com/auniquesun/ViPFormer)
+
+2. [View-GCN](https://github.com/weixmath/view-GCN)
