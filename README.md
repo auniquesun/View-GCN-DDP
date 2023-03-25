@@ -127,7 +127,7 @@ If you do not have Docker installed on your computer before, referring to the [o
     | **reproduced** | _val_ | 82.2 | 82.3 | 81.9 | 80.1 | 82.3 | 62.6 | 66.6 | 63.0 | 62.3 | 68.3 |
     | **reproduced** | _test_ | 78.7 | 77.8 | 77.6 | 75.1 | 82.6 | 56.8 | 61.2 | 56.6 | 56.3 | 63.3 |
 
-    Since the View-GCN paper did not specify the results on SHREC17 produced from the _test_ or _val_ split, according to the reproduced results, we infer the reported numbers come from the _val_ split. 
+    Since the View-GCN paper did not specify the results on SHREC17 produced from the _test_ or _val_ split, according to the reproduced results, we infer the reported scores corresponds to the _val_ split. 
 
 ## Acknowledgement
 Our re-implementation is inspired by the following projects, thanks to their hard work
