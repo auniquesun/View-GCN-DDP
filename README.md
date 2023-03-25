@@ -4,13 +4,13 @@ This repository is a PyTorch DistributedDataParallel (DDP) re-implementation of 
 
 * First, the re-implementation aims to accelerate the process of training and inference by the PyTorch DDP mechanism since
 the [original implementation](https://github.com/weixmath/view-GCN) by the author is for single-GPU learning
-and the procedure is much slower, especially when reproducing the retrieval results on SHREC17 benchmark. 
+and the procedure is much slower, especially when reproducing the retrieval results on [SHREC17](https://shapenet.cs.stanford.edu/shrec17/) benchmark. 
 
 * Second, the retrieval code was absent in the [original repository](https://github.com/weixmath/view-GCN) and 
-the author only released the classification code on ModelNet40. Our re-implementation adds the `retrieval experiment` and corresponding instructions. 
+the author only released the classification implementation on ModelNet40. Our re-implementation adds the `retrieval experiment` and corresponding instructions. 
 
 * Third, we also add the `classification` code on the `RGBD` and `ModelNet10` datasets, add all used datasets download links, modify the model and arguments definition to adapt multi-dataset training, 
-rewrite the READEME and optimzie code style, etc.
+re-write the READEME and optimzie code style, etc.
 
     ![](images/viewgcn_architecture.png)
 
@@ -118,7 +118,6 @@ If you do not have Docker installed on your computer before, referring to the [o
 5. Replace `val.csv` with `test.csv` and re-run steps 3-6 to get the results of the test split
 
 ### Acknowledgement
-    Our re-implementation is inspired by the following projects, thanks to their hard work
+Our re-implementation is inspired by the following projects, thanks to their hard work
 1. [ViPFormer](https://github.com/auniquesun/ViPFormer)
-
 2. [View-GCN](https://github.com/weixmath/view-GCN)
