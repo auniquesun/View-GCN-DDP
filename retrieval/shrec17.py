@@ -11,7 +11,7 @@ from scipy.special import softmax
 import torch
 from torch.utils.data import DataLoader
 
-BASE_DIR = '/mnt/sdb/public/data/jerry/iGitRepo/view-GCN'
+BASE_DIR = '/your/absolute/path/to/view-GCN-DDP'
 sys.path.append(BASE_DIR)
 from model.view_gcn import SVCNN, view_GCN
 from tools.ImgDataset import ShapeNetCore55_MultiView
@@ -106,7 +106,9 @@ with open(label_file, 'w') as fout1, open(f'fp_{mode}.txt', 'w') as fout2:
 
 shape_names = np.array(shape_names)
 num_objects = len(pred_logits)
-savedir = join('evaluator', 'viewformer', f'{mode}_normal')
+
+method_name = sys.argv[6]
+savedir = join('evaluator', method_name, f'{mode}_normal')
 if not exists(savedir):
     os.mkdir(savedir)
 

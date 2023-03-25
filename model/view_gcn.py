@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torchvision.models as models
 from .Model import Model
-from tools.view_gcn_utils import KNN_dist, View_selector, LocalGCN, NonLocalMP
+from tools.view_gcn_utils import View_selector, LocalGCN, NonLocalMP
 
 
 mean = torch.tensor([0.485, 0.456, 0.406],dtype=torch.float, requires_grad=False)

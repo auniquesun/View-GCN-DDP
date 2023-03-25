@@ -1,7 +1,4 @@
-# 2023.3.24
-
-#   test_inst_acc: 
-#   test_class_acc: 
+# train viewgcn classification model on shrec17
 
 PROJ_NAME=viewgcn_shrec17
 EXP_NAME=SH17-V20-ViewGCN-RN18-1

@@ -1,7 +1,4 @@
-# 2023.3.24
-
-#   test_inst_acc: 
-#   test_class_acc: 
+# train viewgcn classification model on modelnet10
 
 PROJ_NAME=viewgcn_rgbd
 MAIN_PROGRAM=train_rgbd.py
