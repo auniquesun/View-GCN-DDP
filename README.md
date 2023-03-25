@@ -117,7 +117,19 @@ If you do not have Docker installed on your computer before, referring to the [o
 
 5. Replace `val.csv` with `test.csv` and re-run steps 3-6 to get the results of the test split
 
-### Acknowledgement
+## Results
+1. 3D shape retrieval on the SHREC17 benchmark
+
+    |   Metrics    | Split | P@N | R@N | F1@N | mAP | NDCG | P@N | R@N | F1@N | mAP | NDCG |
+    | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+    |   **Version**    |  | <td colspan=5 style="text-align:center">micro</td> <td colspan=5 style="text-align:center">macro</td> 
+    | **reported** | _unspecified_ | 81.8 | 80.9 | 80.6 | 78.4 | 85.2 | 62.9 | 65.2 | 61.1 | 60.2 | 66.5 |
+    | **reproduced** | _val_ | 82.2 | 82.3 | 81.9 | 80.1 | 82.3 | 62.6 | 66.6 | 63.0 | 62.3 | 68.3 |
+    | **reproduced** | _test_ | 78.7 | 77.8 | 77.6 | 75.1 | 82.6 | 56.8 | 61.2 | 56.6 | 56.3 | 63.3 |
+
+    Since the View-GCN paper did not specify the results on SHREC17 produced from the _test_ or _val_ split, according to the reproduced results, we infer the reported numbers come from the _val_ split. 
+
+## Acknowledgement
 Our re-implementation is inspired by the following projects, thanks to their hard work
 1. [ViPFormer](https://github.com/auniquesun/ViPFormer)
 2. [View-GCN](https://github.com/weixmath/view-GCN)
