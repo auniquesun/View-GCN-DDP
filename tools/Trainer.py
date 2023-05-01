@@ -1,9 +1,28 @@
 import os
+import time
 import math
 import wandb
 import numpy as np
 
 import torch
+
+
+class AverageMeter(object):
+    """Computes and stores the average and current value"""
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
 
 
 class Trainer(object):
@@ -63,6 +82,8 @@ class Trainer(object):
             out_data = None
             in_data = None
             num_shapes = len(self.train_loader.dataset.filepaths) // args.num_views
+            train_interval = AverageMeter()
+
             for i, data in enumerate(self.train_loader):
                 # data: (class_id, imgs_within_a_batch, imgs_path_within_a_batch)
 
@@ -70,7 +91,7 @@ class Trainer(object):
                     for param_group in self.optimizer.param_groups:
                         param_group['lr'] = lr * ((i + 1) / (num_shapes // 20))
                 if self.model_name == 'view-gcn':
-                    N, V, C, H, W = data[1].size()
+                    B, V, C, H, W = data[1].size()
                     in_data = data[1].view(-1, C, H, W).to(rank)
                 else:
                     in_data = data[1].to(rank)
@@ -80,6 +101,8 @@ class Trainer(object):
                 target_ = target.unsqueeze(1).repeat(1, 4*(10+5)).view(-1)
                 # target_ = target.unsqueeze(1).repeat(1, args.num_obj_classes + args.num_views).view(-1)
                 self.optimizer.zero_grad()
+
+                start = time.time()
                 if self.model_name == 'view-gcn':
                     out_data, F_score,F_score2= self.model(in_data)
                     # out_data_ 的类别数 和 target_ 对不上啊
@@ -89,14 +112,17 @@ class Trainer(object):
                     out_data = self.model(in_data)
                     train_loss = self.loss_fn(out_data, target)
 
+                train_loss.backward()
+                B = out_data.shape[0]
+                train_interval.update(time.time() - start, n=B)
+                self.optimizer.step()
+
                 pred = torch.max(out_data, 1)[1]
                 results = pred == target
                 correct_points = torch.sum(results.long())
 
                 train_acc = correct_points.float() / results.size()[0]
                 #print('lr = ', str(param_group['lr']))
-                train_loss.backward()
-                self.optimizer.step()
 
                 if i % args.print_freq == 0:
                     logger.write(f'Epoch: {epoch}/{epochs}, Batch: {i}/{len(self.train_loader)}, '
@@ -105,7 +131,7 @@ class Trainer(object):
             # --- Test
             logger.write('Start testing on %s ...' % args.dataset, rank=rank)
             # 为什么这里出不来结果，是哪里出了问题，只可能是函数内部出了问题
-            test_loss, test_overall_acc, test_mean_class_acc = self.update_validation_accuracy(rank, args)
+            test_loss, test_overall_acc, test_mean_class_acc, test_interval = self.update_validation_accuracy(rank, args)
 
             logger.write('Got test instance accuracy on [%s]: %f' % (args.dataset, test_overall_acc), rank=rank)
             logger.write('Got test class accuracy on [%s]: %f' % (args.dataset, test_mean_class_acc), rank=rank)
@@ -129,6 +155,7 @@ class Trainer(object):
                 wandb_log['lr'] = lr
                 wandb_log['train_loss'] = train_loss.item()
                 wandb_log['train_acc'] = train_acc
+                wandb_log['train_interval'] = train_interval.avg
                 wandb_log['test_loss'] = test_loss
                 wandb_log['test_inst_acc'] = test_overall_acc
                 wandb_log['test_best_inst_acc'] = test_best_inst_acc
@@ -136,6 +163,7 @@ class Trainer(object):
                 wandb_log['test_best_class_acc'] = test_best_class_acc
                 wandb_log['test_best_inst_epoch'] = test_best_inst_epoch
                 wandb_log['test_best_class_epoch'] = test_best_class_epoch
+                wandb_log['test_interval'] = test_interval.avg
                 wandb.log(wandb_log)
 
         if rank == 0:
@@ -149,6 +177,7 @@ class Trainer(object):
             all_correct_points = 0
             all_points = 0
             
+            test_interval = AverageMeter()
             wrong_class = np.zeros(args.num_obj_classes)
             samples_class = np.zeros(args.num_obj_classes)
             all_loss = 0
@@ -163,12 +192,18 @@ class Trainer(object):
                 else:  # 'svcnn'
                     in_data = data[1].to(rank)
                 target = data[0].to(rank)
+
+                start = time.time()
                 if self.model_name == 'view-gcn':
                     out_data, F1, F2 = self.model(in_data)
                 else:
                     out_data = self.model(in_data)
-                pred = torch.max(out_data, 1)[1]
+                
                 all_loss += self.loss_fn(out_data, target).cpu().numpy()
+                B = out_data.shape[0]
+                test_interval.update(time.time() - start, n=B)
+
+                pred = torch.max(out_data, 1)[1]
                 results = pred == target
 
                 for i in range(results.size()[0]):
@@ -186,4 +221,4 @@ class Trainer(object):
             val_overall_acc = acc.cpu().numpy()
             loss = all_loss / len(self.test_loader)
 
-            return loss, val_overall_acc, val_mean_class_acc
+            return loss, val_overall_acc, val_mean_class_acc, test_interval
