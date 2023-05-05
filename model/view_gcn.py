@@ -2,6 +2,10 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torchvision.models as models
+from torchvision.models import (
+    AlexNet_Weights, VGG11_BN_Weights, VGG16_Weights,
+    ResNet18_Weights, ResNet34_Weights, ResNet50_Weights)
+
 from .Model import Model
 from tools.view_gcn_utils import View_selector, LocalGCN, NonLocalMP
 
@@ -36,25 +40,24 @@ class SVCNN(Model):
 
         if self.use_resnet:
             if self.cnn_name == 'resnet18':
-                self.net = models.resnet18(pretrained=self.pretraining)
+                self.net = models.resnet18(weights=ResNet18_Weights.DEFAULT)
                 self.net.fc = nn.Linear(512, self.nclasses)
             elif self.cnn_name == 'resnet34':
-                self.net = models.resnet34(pretrained=self.pretraining)
+                self.net = models.resnet34(weights=ResNet34_Weights.DEFAULT)
                 self.net.fc = nn.Linear(512, self.nclasses)
             elif self.cnn_name == 'resnet50':
-                self.net = models.resnet50(pretrained=self.pretraining)
+                self.net = models.resnet50(weights=ResNet50_Weights.DEFAULT)
                 self.net.fc = nn.Linear(2048, self.nclasses)
         else:
             if self.cnn_name == 'alexnet':
-                self.net_1 = models.alexnet(pretrained=self.pretraining).features
-                self.net_2 = models.alexnet(pretrained=self.pretraining).classifier
+                net = models.alexnet(weights=AlexNet_Weights.DEFAULT)
             elif self.cnn_name == 'vgg11':
-                self.net_1 = models.vgg11_bn(pretrained=self.pretraining).features
-                self.net_2 = models.vgg11_bn(pretrained=self.pretraining).classifier
+                net = models.vgg11_bn(weights=VGG11_BN_Weights.DEFAULT)
             elif self.cnn_name == 'vgg16':
-                self.net_1 = models.vgg16(pretrained=self.pretraining).features
-                self.net_2 = models.vgg16(pretrained=self.pretraining).classifier
+                net = models.vgg16(weights=VGG16_Weights.DEFAULT)
 
+            self.net_1 = net.features
+            self.net_2 = net.classifier
             self.net_2._modules['6'] = nn.Linear(4096, self.nclasses)
 
     def forward(self, x):

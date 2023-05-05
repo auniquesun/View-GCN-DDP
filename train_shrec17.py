@@ -32,16 +32,16 @@ def entry(rank, num_devices):
 
     if args.stage_one:
         # --- 1.1 prepare data
-        sv_train_set = ShapeNetCore55_SingleView(label_file=args.train_label, version=args.shrec_version, 
-                                                    num_classes=args.num_obj_classes)
+        sv_train_set = ShapeNetCore55_SingleView(root_dir=args.train_path, label_file=args.train_label, 
+                                                 version=args.shrec_version, num_classes=args.num_obj_classes)
         sv_samples_per_gpu = args.base_model_batch_size // args.world_size
         sv_train_sampler = DistributedSampler(sv_train_set, num_replicas=args.world_size, rank=rank)
         sv_train_loader = DataLoader(sv_train_set, sampler=sv_train_sampler, batch_size=sv_samples_per_gpu, shuffle=False, 
                                     num_workers=args.num_workers, pin_memory=True,)
         logger.write(f'len(sv_train_loader): {len(sv_train_loader)}', rank=rank)
 
-        sv_test_set = ShapeNetCore55_SingleView(label_file=args.test_label, version=args.shrec_version, 
-                                                num_classes=args.num_obj_classes)
+        sv_test_set = ShapeNetCore55_SingleView(root_dir=args.train_path, label_file=args.test_label, 
+                                                version=args.shrec_version, num_classes=args.num_obj_classes)
         sv_test_samples_per_gpu = args.base_model_test_batch_size // args.world_size
         sv_test_sampler = DistributedSampler(sv_test_set, num_replicas=args.world_size, rank=rank)
         sv_test_loader = DataLoader(sv_test_set, sampler=sv_test_sampler, batch_size=sv_test_samples_per_gpu, shuffle=False, 

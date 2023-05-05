@@ -1,5 +1,6 @@
 # train viewgcn classification model on modelnet10
 
+WB_KEY=local-blabla     # replace with your wandb key
 PROJ_NAME=viewgcn_rgbd
 MAIN_PROGRAM=train_rgbd.py
 MODEL_NAME=view_gcn.py
@@ -23,6 +24,7 @@ NUM_WORKERS=3
 # 1st trial
 EXP_NAME=RGBD-V12-ViewGCN-RN18-1_1
 pueue add -g ${PROJ_NAME} python ${MAIN_PROGRAM} \
+    --wb_key ${WB_KEY} \
     --proj_name ${PROJ_NAME} \
     --exp_name ${EXP_NAME} \
     --main_program ${MAIN_PROGRAM} \

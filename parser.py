@@ -4,7 +4,7 @@ import argparse
 parser = argparse.ArgumentParser(description='Multi View Transformer for 3D Shape Analysis')
 
 # --------- initialize project
-parser.add_argument('--proj_name', type=str, default='ViewFormer', metavar='N',
+parser.add_argument('--proj_name', type=str, default='ViewGCN-DDP', metavar='N',
                     help='Name of the project')
 parser.add_argument('--exp_name', type=str, default='1CL1SB6SL_4', metavar='N',
                     help='Name of the experiment')
@@ -45,10 +45,9 @@ parser.add_argument('--base_feature_dim', type=int, default=512, help='feature d
 parser.add_argument('--base_pretrain', type=bool, default=True, help='flag to whether use pretrained image feature extractor')
 parser.add_argument('--base_model_weights', type=str, default='sv_model_best.pth', metavar='N',
                     help='saved base image model name')
-parser.add_argument('--viewformer_weights', type=str, default='mv_model_best.pth', metavar='N',
-                    help='saved viewformer name')
 parser.add_argument('--stage_one', action="store_true", help='flag to run stage one')
 parser.add_argument('--stage_two', action="store_true", help='flag to run stage two')
+parser.add_argument('--num_views', type=int, default=20, help='number of views per 3d object, its value is <= total_num_views')
 
 # --------- shape retrieval on ShapeNet Core55
 parser.add_argument('--train_label', type=str, default='train.csv', help='train label file')

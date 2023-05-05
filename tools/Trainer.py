@@ -121,7 +121,7 @@ class Trainer(object):
                 results = pred == target
                 correct_points = torch.sum(results.long())
 
-                train_acc = correct_points.float() / results.size()[0]
+                train_acc = correct_points / results.size()[0]
                 #print('lr = ', str(param_group['lr']))
 
                 if i % args.print_freq == 0:
@@ -217,7 +217,7 @@ class Trainer(object):
 
             class_acc = (samples_class - wrong_class) / samples_class
             val_mean_class_acc = np.mean(class_acc)
-            acc = all_correct_points.float() / all_points
+            acc = all_correct_points / all_points
             val_overall_acc = acc.cpu().numpy()
             loss = all_loss / len(self.test_loader)
 
