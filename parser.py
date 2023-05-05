@@ -48,6 +48,7 @@ parser.add_argument('--base_model_weights', type=str, default='sv_model_best.pth
 parser.add_argument('--stage_one', action="store_true", help='flag to run stage one')
 parser.add_argument('--stage_two', action="store_true", help='flag to run stage two')
 parser.add_argument('--num_views', type=int, default=20, help='number of views per 3d object, its value is <= total_num_views')
+parser.add_argument('--total_num_views', type=int, default=20, help='maximum number of views per 3d object')
 
 # --------- shape retrieval on ShapeNet Core55
 parser.add_argument('--train_label', type=str, default='train.csv', help='train label file')

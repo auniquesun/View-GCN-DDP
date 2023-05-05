@@ -1,14 +1,12 @@
 # 2023.5.5
 
 # NOTE 这次主要为了记录 train/test time
-#   stage_one 跑的 train_interval/test_interval 能看作 SVCNN 的结果
-#   train_interval * num_views 能得到 MVCNN 的结果，test_interval * num_views 类推
 
 # train viewgcn classification model on modelnet40
 
-WB_KEY=local-blabla     # replace with your wandb key
+WB_KEY=local-blabla      # replace with your wandb key
 PROJ_NAME=multiview_time_comparison
-EXP_NAME=MN40-V20-ViewGCN-RN18-1
+EXP_NAME=MN40-V20-ViewGCN-RN18-2
 MAIN_PROGRAM=train_modelnet.py
 MODEL_NAME=view_gcn.py
 BASE_MODEL_NAME=resnet18
@@ -24,7 +22,7 @@ TRAIN_PATH=data/${DATASET}
 TEST_PATH=data/${DATASET}
 NUM_CLASSES=40
 NUM_VIEWS=20
-BATCH_SIZE=84  # 不能是60的整数倍，否则最后一个batch大小为1，前向传播报错
+BATCH_SIZE=96
 BASE_MODEL_BATCH_SIZE=2400
 PRINT_FREQ=9
 NUM_WORKERS=3
@@ -37,13 +35,13 @@ pueue add -g ${PROJ_NAME} python ${MAIN_PROGRAM} \
     --main_program ${MAIN_PROGRAM} \
     --model_name ${MODEL_NAME} \
     --shell_name scripts/${TASK}/${PROJ_NAME}/${EXP_NAME}.sh \
-    --stage_one --stage_two \
+    --stage_two \
     --dataset ${DATASET} \
     --train_path ${TRAIN_PATH} --test_path ${TEST_PATH} \
     --num_obj_classes ${NUM_CLASSES} \
     --task ${TASK} \
     --base_model_name ${BASE_MODEL_NAME} \
-    --resume --base_model_weights runs/${TASK}/${PROJ_NAME}/${EXP_NAME}/weights/sv_model_best.pth \
+    --resume --base_model_weights runs/${TASK}/${PROJ_NAME}/MN40-V20-ViewGCN-RN18-1/weights/sv_model_best.pth \
     --base_model_epochs ${BASE_MODEL_EPOCHS} --epochs ${EPOCHS} \
     --lr ${LR} \
     --num_views ${NUM_VIEWS} \
