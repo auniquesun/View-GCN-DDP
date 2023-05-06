@@ -94,6 +94,7 @@ class Trainer(object):
                     B, V, C, H, W = data[1].size()
                     in_data = data[1].view(-1, C, H, W).to(rank)
                 else:
+                    B, C, H, W = data[1].size()
                     in_data = data[1].to(rank)
                 target = data[0].to(rank).long()
                 # 4*(10+5) 是在干什么？最后用这个做分类损失用，40个物体类别，20个视角
@@ -113,9 +114,8 @@ class Trainer(object):
                     train_loss = self.loss_fn(out_data, target)
 
                 train_loss.backward()
-                B = out_data.shape[0]
-                train_interval.update(time.time() - start, n=B)
                 self.optimizer.step()
+                train_interval.update(time.time() - start, n=B)
 
                 pred = torch.max(out_data, 1)[1]
                 results = pred == target
@@ -190,19 +190,18 @@ class Trainer(object):
                     B, V, C, H, W = data[1].size()
                     in_data = data[1].view(-1, C, H, W).to(rank)
                 else:  # 'svcnn'
+                    B, C, H, W = data[1].size()
                     in_data = data[1].to(rank)
                 target = data[0].to(rank)
 
                 start = time.time()
                 if self.model_name == 'view-gcn':
-                    out_data, F1, F2 = self.model(in_data)
+                    out_data, _, _ = self.model(in_data)
                 else:
                     out_data = self.model(in_data)
-                
-                all_loss += self.loss_fn(out_data, target).cpu().numpy()
-                B = out_data.shape[0]
                 test_interval.update(time.time() - start, n=B)
 
+                all_loss += self.loss_fn(out_data, target).cpu().numpy()
                 pred = torch.max(out_data, 1)[1]
                 results = pred == target
 
