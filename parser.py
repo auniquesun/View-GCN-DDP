@@ -1,4 +1,6 @@
+import os
 import argparse
+from dotenv import load_dotenv
 
 
 parser = argparse.ArgumentParser(description='Multi View Transformer for 3D Shape Analysis')
@@ -112,8 +114,11 @@ parser.add_argument('--train_path', type=str, default='data/modelnet40v2png_ori4
 parser.add_argument('--test_path', type=str, default='data/modelnet40v2png_ori4', help='path of test dataset')
 
 # --------- wandb settings
-parser.add_argument('--wb_url', type=str, default="http://localhost:28282", help='wandb server url')
+parser.add_argument('--wb_url', type=str, default="", help='wandb server url')
 parser.add_argument('--wb_key', type=str, default="", help='wandb login key')
 
-
+# load `wb_url` and `wb_key` from environment variables, rather than using `explicit strings`
+load_dotenv()
 args = parser.parse_args()
+args.wb_url = os.environ['wb_url']
+args.wb_key = os.environ['wb_key']
