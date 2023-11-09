@@ -50,7 +50,7 @@ def entry(rank, num_devices):
         cnet = SVCNN(args.exp_name, nclasses=args.num_obj_classes, pretraining=True, cnn_name=args.base_model_name).to(rank)
 
         # --- 1.3 wrap model with DDP
-        cnet_ddp = DDP(cnet, device_ids=[rank], find_unused_parameters=True)
+        cnet_ddp = DDP(cnet, device_ids=[rank], find_unused_parameters=False)
 
         # --- 1.4 construct optimizer
         optimizer = optim.SGD(cnet_ddp.parameters(), lr=1e-2, weight_decay=args.weight_decay, momentum=0.9)

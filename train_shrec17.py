@@ -97,7 +97,7 @@ def entry(rank, num_devices):
         viewgcn = view_GCN(args.exp_name, sv_classifier, nclasses=args.num_obj_classes, cnn_name=args.base_model_name, num_views=args.num_views).to(rank)
 
         # --- 2.3 wrap model with DDP
-        viewgcn_ddp = DDP(viewgcn, device_ids=[rank], find_unused_parameters=True)
+        viewgcn_ddp = DDP(viewgcn, device_ids=[rank], find_unused_parameters=False)
 
         # --- 2.4 construct optimizer
         optimizer = optim.SGD(viewgcn_ddp.parameters(), lr=args.lr, weight_decay=args.weight_decay,momentum=0.9)
