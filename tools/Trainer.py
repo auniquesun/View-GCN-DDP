@@ -52,6 +52,10 @@ class Trainer(object):
         test_best_inst_epoch = 0
         test_best_class_acc = .0
         test_best_inst_acc = .0
+        total_train_interval = .0
+        total_test_interval = .0
+        total_train_samples = 0
+        total_test_samples = 0
 
         if self.type == 'sv':
             epochs = args.base_model_epochs
@@ -82,7 +86,8 @@ class Trainer(object):
             out_data = None
             in_data = None
             num_shapes = len(self.train_loader.dataset.filepaths) // args.num_views
-            train_interval = AverageMeter()
+            train_interval = .0
+            train_samples = 0
 
             for i, data in enumerate(self.train_loader):
                 # data: (class_id, imgs_within_a_batch, imgs_path_within_a_batch)
@@ -115,7 +120,8 @@ class Trainer(object):
 
                 train_loss.backward()
                 self.optimizer.step()
-                train_interval.update(time.time() - start, n=B)
+                train_interval += time.time() - start
+                train_samples += B
 
                 pred = torch.max(out_data, 1)[1]
                 results = pred == target
@@ -127,11 +133,15 @@ class Trainer(object):
                 if i % args.print_freq == 0:
                     logger.write(f'Epoch: {epoch}/{epochs}, Batch: {i}/{len(self.train_loader)}, '
                                 f'Loss : {train_loss.item()}, Accuracy: {train_acc} ', rank=rank)
+            total_train_interval += train_interval
+            total_train_samples += train_samples
             
             # --- Test
             logger.write('Start testing on %s ...' % args.dataset, rank=rank)
             # 为什么这里出不来结果，是哪里出了问题，只可能是函数内部出了问题
-            test_loss, test_overall_acc, test_mean_class_acc, test_interval = self.update_validation_accuracy(rank, args)
+            test_loss, test_overall_acc, test_mean_class_acc, test_interval, test_samples = self.update_validation_accuracy(rank, args)
+            total_test_interval += test_interval
+            total_test_samples += test_samples
 
             logger.write('Got test instance accuracy on [%s]: %f' % (args.dataset, test_overall_acc), rank=rank)
             logger.write('Got test class accuracy on [%s]: %f' % (args.dataset, test_mean_class_acc), rank=rank)
@@ -155,7 +165,10 @@ class Trainer(object):
                 wandb_log['lr'] = lr
                 wandb_log['train_loss'] = train_loss.item()
                 wandb_log['train_acc'] = train_acc
-                wandb_log['train_interval'] = train_interval.avg
+                # average time consuming of each training sample in current epoch
+                wandb_log['train_interval'] = train_interval / train_samples
+                # average time consuming of each training sample in all past epochs
+                wandb_log['total_train_interval'] = total_train_interval / total_train_samples
                 wandb_log['test_loss'] = test_loss
                 wandb_log['test_inst_acc'] = test_overall_acc
                 wandb_log['test_best_inst_acc'] = test_best_inst_acc
@@ -163,7 +176,10 @@ class Trainer(object):
                 wandb_log['test_best_class_acc'] = test_best_class_acc
                 wandb_log['test_best_inst_epoch'] = test_best_inst_epoch
                 wandb_log['test_best_class_epoch'] = test_best_class_epoch
-                wandb_log['test_interval'] = test_interval.avg
+                # average time consuming of each test sample in current epoch
+                wandb_log['test_interval'] = test_interval / test_samples
+                # average time consuming of each test sample in all past epochs
+                wandb_log['total_test_interval'] = total_test_interval / total_test_samples
                 wandb.log(wandb_log)
 
         if rank == 0:
@@ -177,7 +193,8 @@ class Trainer(object):
             all_correct_points = 0
             all_points = 0
             
-            test_interval = AverageMeter()
+            test_interval = .0
+            test_samples = 0
             wrong_class = np.zeros(args.num_obj_classes)
             samples_class = np.zeros(args.num_obj_classes)
             all_loss = 0
@@ -199,7 +216,8 @@ class Trainer(object):
                     out_data, _, _ = self.model(in_data)
                 else:
                     out_data = self.model(in_data)
-                test_interval.update(time.time() - start, n=B)
+                test_interval += time.time() - start
+                test_samples += B
 
                 all_loss += self.loss_fn(out_data, target).cpu().numpy()
                 pred = torch.max(out_data, 1)[1]
@@ -220,4 +238,4 @@ class Trainer(object):
             val_overall_acc = acc.cpu().numpy()
             loss = all_loss / len(self.test_loader)
 
-            return loss, val_overall_acc, val_mean_class_acc, test_interval
+            return loss, val_overall_acc, val_mean_class_acc, test_interval, test_samples
