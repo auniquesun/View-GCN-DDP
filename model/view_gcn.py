@@ -78,6 +78,7 @@ class view_GCN(Model):
                            'person', 'piano', 'plant', 'radio', 'range_hood', 'sink', 'sofa', 'stairs',
                            'stool', 'table', 'tent', 'toilet', 'tv_stand', 'vase', 'wardrobe', 'xbox']
 
+        self.base_name = cnn_name
         self.nclasses = nclasses
         self.num_views = num_views
         self.mean = torch.tensor([0.485, 0.456, 0.406], dtype=torch.float, requires_grad=False)
@@ -88,6 +89,11 @@ class view_GCN(Model):
             self.net_2 = model.net.fc
         else:
             self.net_1 = model.net_1
+            self.avgpool = nn.AdaptiveAvgPool2d((6, 6))
+            self.feat_proj = nn.Sequential(
+                nn.Linear(9216, 512),   # 9216 = 256*6*6
+                nn.ReLU(inplace=True)
+            )
             self.net_2 = model.net_2
         if self.num_views == 20:
             phi = (1 + np.sqrt(5)) / 2
@@ -139,6 +145,8 @@ class view_GCN(Model):
         y = self.net_1(x)
         # y: [B, N, dim_feats]
         y = y.view((int(x.shape[0] / views), views, -1))
+        if 'alexnet' == self.base_name:
+            y = self.feat_proj(y)
         # vertices: [B, N, 3]
         vertices = self.vertices.unsqueeze(0).repeat(y.shape[0], 1, 1)
         # y: [B, N, dim_feats]
