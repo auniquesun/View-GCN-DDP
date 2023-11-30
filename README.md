@@ -117,7 +117,7 @@ If you do not have Docker installed on your computer before, referring to the [o
     node --max-old-space-size=8192 evaluate.js viewgcn/
     ```
 
-5. Replace `val.csv` with `test.csv` and re-run steps 3-6 to get the results of the test split
+5. Replace `val.csv` with `test.csv` and re-run steps 3-4 to get the results of the test split
 
 ## Results
 1. 3D shape retrieval on the SHREC17 benchmark
